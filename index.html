@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classroom Pulse - Malaiba Elementary School</title>
+  <!-- Material Icons & Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <div class="app-container">
+
+    <!-- LEFT SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar-container" style="display: none;">
+      <div class="logo-section">
+        <h1>Classroom Pulse</h1>
+        <p id="portal-subtitle">Malaiba ES • Advisor Portal</p>
+      </div>
+
+      <nav class="nav-menu">
+        <div class="nav-item active" data-nav="dashboard">
+          <span class="material-symbols-outlined">dashboard</span>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="students" id="nav-students">
+          <span class="material-symbols-outlined">group</span>
+          <span>Student Directory</span>
+        </div>
+        <div class="nav-item" data-nav="teachers" id="nav-teachers" style="display: none;">
+          <span class="material-symbols-outlined">badge</span>
+          <span>Teacher Directory</span>
+        </div>
+        <div class="nav-item" data-nav="records">
+          <span class="material-symbols-outlined">history</span>
+          <span>Attendance Records</span>
+        </div>
+        <div class="nav-item" data-nav="settings">
+          <span class="material-symbols-outlined">settings</span>
+          <span>Settings</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="teacher-profile-card">
+          <img class="teacher-avatar" src="assets/photos/teacher_santos.png" alt="Advisor Photo">
+          <div class="teacher-info">
+            <span class="teacher-name">Mrs. Elena Santos</span>
+            <span class="teacher-role">Grade 3 Adviser</span>
+          </div>
+        </div>
+        <div class="nav-item" data-nav="logout" style="margin-top: 0; color: #ef4444;">
+          <span class="material-symbols-outlined">logout</span>
+          <span>Log Out</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN BODY WRAPPER -->
+    <div class="main-wrapper" id="main-wrapper" style="margin-left: 0;">
+
+      <!-- TOP HEADER BAR -->
+      <header class="top-header" id="top-header" style="display: none;">
+        <div class="header-title-area">
+          <h2 id="header-screen-title">Class Overview</h2>
+        </div>
+        <div class="header-actions">
+          <!-- Background Auto-Sync Status Badge -->
+          <div class="sync-status-badge">
+            <div class="sync-dot online" id="sync-status-dot"></div>
+            <span class="sync-text" id="sync-status-text">Cloud Connected</span>
+            <span id="pending-sync-widget" class="badge badge-unsynced"
+              style="display: none; font-size: 10px; margin-left: 8px;"></span>
+          </div>
+          <button class="btn-icon-outline" title="Help Desk">
+            <span class="material-symbols-outlined">help</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW CONTAINER -->
+      <main class="view-container">
+
+        <!-- SCREEN: LOGIN -->
+        <div class="screen-view login-screen-wrapper active" id="login-screen">
+          <div class="login-card">
+            <div class="login-school-logo">
+              <span class="material-symbols-outlined">school</span>
+            </div>
+            <h2>Malaiba ES</h2>
+            <p>Teacher Portal • Classroom Pulse</p>
+
+            <form id="login-form"
+              onsubmit="event.preventDefault(); App.handleLogin(document.getElementById('login-username').value, document.getElementById('login-password').value);">
+              <div class="form-group">
+                <label for="login-username">
+                  <span class="material-symbols-outlined">person</span> Username
+                </label>
+                <input type="text" id="login-username" class="form-input" placeholder="Enter username (admin)" required
+                  value="admin">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 24px;">
+                <label for="login-password">
+                  <span class="material-symbols-outlined">lock</span> Password
+                </label>
+                <input type="password" id="login-password" class="form-input" placeholder="Enter password (password)"
+                  required value="password">
+              </div>
+
+              <div class="login-options">
+                <label class="remember-me">
+                  <input type="checkbox" checked> Keep me signed in
+                </label>
+                <a href="#" class="forgot-password">Forgot password?</a>
+              </div>
+
+              <button type="submit" class="btn-primary">
+                Login <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </form>
+
+            <div class="login-footer">
+              <p>Authorized Access Only</p>
+              <div class="login-security-info">
+                <div class="security-badge">
+                  <span class="material-symbols-outlined" style="color: var(--primary);">security</span>
+                  <span>Secure Portal</span>
+                </div>
+                <div class="security-badge">
+                  <span class="material-symbols-outlined" style="color: var(--primary);">support_agent</span>
+                  <span>IT Support</span>
+                </div>
+              </div>
+              <div class="login-system-status">
+                <div class="status-indicator-dot"></div>
+                <span>Systems Operational • v3.1.0-offline</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN: PASSWORD RESET -->
+        <div class="screen-view login-screen-wrapper" id="password-reset-screen">
+          <div class="login-card">
+            <div class="login-school-logo"
+              style="background-color: var(--status-late); box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);">
+              <span class="material-symbols-outlined">lock_reset</span>
+            </div>
+            <h2>Reset Password</h2>
+            <p>For your security, please update your temporary password before proceeding.</p>
+
+            <form id="password-reset-form"
+              onsubmit="event.preventDefault(); App.handlePasswordReset(document.getElementById('reset-new-password').value, document.getElementById('reset-confirm-password').value);">
+              <div class="form-group">
+                <label for="reset-new-password">
+                  <span class="material-symbols-outlined">lock</span> New Password
+                </label>
+                <input type="password" id="reset-new-password" class="form-input" placeholder="Enter new password"
+                  required minlength="6">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 24px;">
+                <label for="reset-confirm-password">
+                  <span class="material-symbols-outlined">lock</span> Confirm Password
+                </label>
+                <input type="password" id="reset-confirm-password" class="form-input" placeholder="Confirm new password"
+                  required minlength="6">
+              </div>
+
+              <button type="submit" class="btn-primary"
+                style="background-color: var(--status-late); box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);">
+                Update & Login <span class="material-symbols-outlined">key</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- SCREEN: DASHBOARD -->
+        <div class="screen-view" id="dashboard-screen">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h3 id="dashboard-title-text">Class Overview</h3>
+              <p id="dashboard-subtitle-text">Monday, October 23rd • Section A-102 (Grade 3 - Narra)</p>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <select id="dashboard-session-filter" class="select-filter" onchange="App.renderScreen('dashboard');"
+                style="height: 44px; margin-bottom: 0;">
+                <option value="AM" selected>Morning (AM)</option>
+                <option value="PM">Afternoon (PM)</option>
+              </select>
+              <button class="btn-secondary-action" id="start-session-btn" style="margin-bottom: 0;">
+                <span class="material-symbols-outlined">sensors</span> Start Attendance Session
+              </button>
+            </div>
+          </div>
+
+          <!-- Statistics Bento Grid -->
+          <div class="bento-grid">
+            <div class="glass-card enrolled-card card-span-2">
+              <div>
+                <span class="stat-label">Total Enrolled Pupils</span>
+                <div class="stat-value" id="dash-stat-enrolled">32</div>
+              </div>
+              <span class="stat-footer-text">
+                <span class="material-symbols-outlined">trending_up</span> 100% Data Integrity
+              </span>
+              <span class="material-symbols-outlined enrolled-card-bg-icon">school</span>
+            </div>
+
+            <div class="glass-card stat-card-present" onclick="App.openDashboardListModal('PRESENT');">
+              <div class="stat-header">
+                <div class="stat-icon-container">
+                  <span class="material-symbols-outlined">check_circle</span>
+                </div>
+                <span class="stat-card-desc">Today</span>
+              </div>
+              <div class="stat-card-num" id="dash-stat-present">0</div>
+              <span class="stat-card-desc">Present</span>
+            </div>
+
+            <div class="glass-card stat-card-late" onclick="App.openDashboardListModal('LATE');" style="display: none;">
+              <div class="stat-header">
+                <div class="stat-icon-container">
+                  <span class="material-symbols-outlined">schedule</span>
+                </div>
+                <span class="stat-card-desc">Today</span>
+              </div>
+              <div class="stat-card-num" id="dash-stat-late">0</div>
+              <span class="stat-card-desc">Late Arrivals</span>
+            </div>
+
+            <div class="glass-card stat-card-absent" onclick="App.openDashboardListModal('ABSENT');">
+              <div class="stat-header">
+                <div class="stat-icon-container">
+                  <span class="material-symbols-outlined">person_off</span>
+                </div>
+                <span class="stat-card-desc">Today</span>
+              </div>
+              <div class="stat-card-num" id="dash-stat-absent">0</div>
+              <span class="stat-card-desc">Absent</span>
+            </div>
+
+            <div class="glass-card card-span-4 alert-card-absent" onclick="App.openDashboardListModal('ABSENT');">
+              <div class="alert-card-content">
+                <div class="alert-card-title">
+                  <span class="material-symbols-outlined">person_off</span>
+                  <span id="dash-stat-missing">0</span> Students Remaining
+                </div>
+                <p class="alert-card-text">These students have not scanned for today's session yet.</p>
+              </div>
+              <button class="btn-outline-absent" onclick="event.stopPropagation(); App.switchScreen('records');">View
+                Ledger</button>
+            </div>
+          </div>
+
+          <!-- Recent Scans Table -->
+          <div class="section-title-bar" id="dash-recent-scans-title">
+            <h3>Recent Scans</h3>
+            <span class="view-log-link" onclick="App.switchScreen('records');">View Full History Logs</span>
+          </div>
+
+          <div class="table-card" id="dash-recent-scans-card">
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>RFID Card UID</th>
+                    <th>Time Scanned</th>
+                    <th>Attendance Status</th>
+                    <th>Sync Status</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-recent-scans-tbody">
+                  <!-- JS generated rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Classroom breakdown section for Principal -->
+          <div id="principal-classroom-breakdown" style="display: none; margin-top: 32px;">
+            <div class="section-title-bar" style="margin-bottom: 20px;">
+              <h3>Classroom Attendance Performance</h3>
+            </div>
+            <div class="classroom-grid" id="classroom-grid-container"
+              style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+              <!-- JS generated cards -->
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN: TEACHER MANAGEMENT -->
+        <div class="screen-view" id="teachers-screen">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h3>Teacher Directory</h3>
+              <p>Manage advisors, assign classrooms, and create credentials.</p>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-primary-action" onclick="App.openAddTeacherModal();"
+                style="background-color: var(--primary); color: white; display: flex; align-items: center; gap: 8px; border: none; padding: 12px 24px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; box-shadow: var(--shadow-sm);">
+                <span class="material-symbols-outlined">person_add</span> Add New Teacher
+              </button>
+            </div>
+          </div>
+
+          <div class="student-grid-stats" style="margin-bottom: 24px;">
+            <div class="mini-stat-card">
+              <div class="mini-stat-icon-wrapper primary">
+                <span class="material-symbols-outlined">badge</span>
+              </div>
+              <div class="mini-stat-info">
+                <span class="mini-stat-label">Active Advisors</span>
+                <span class="mini-stat-num" id="teacher-stat-total">1</span>
+              </div>
+            </div>
+            <div class="mini-stat-card">
+              <div class="mini-stat-icon-wrapper secondary">
+                <span class="material-symbols-outlined">task_alt</span>
+              </div>
+              <div class="mini-stat-info">
+                <span class="mini-stat-label">Passwords Active</span>
+                <span class="mini-stat-num" id="teacher-stat-active">1</span>
+              </div>
+            </div>
+            <div class="mini-stat-card">
+              <div class="mini-stat-icon-wrapper error"
+                style="background-color: var(--status-late-bg); color: var(--status-late);">
+                <span class="material-symbols-outlined">key_off</span>
+              </div>
+              <div class="mini-stat-info">
+                <span class="mini-stat-label">Temporary Access</span>
+                <span class="mini-stat-num" id="teacher-stat-pending" style="color: var(--status-late);">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-bar">
+            <div class="filter-left">
+              <div class="search-input-wrapper">
+                <span class="material-symbols-outlined search-icon">search</span>
+                <input type="text" id="teachers-search-input" class="search-input"
+                  placeholder="Search teachers by name or username..." oninput="App.renderTeachers();">
+              </div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Advisor Details</th>
+                    <th>Username</th>
+                    <th>Assigned Grade & Section</th>
+                    <th>Password Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="teachers-tbody">
+                  <!-- JS generated rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN: STUDENT MANAGEMENT -->
+        <div class="screen-view" id="students-screen">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h3>Student Directory</h3>
+              <p>Manage your classroom ledger and RFID card registrations.</p>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-primary-action" onclick="App.openAddStudentModal();">
+                <span class="material-symbols-outlined">person_add</span> Add New Student
+              </button>
+            </div>
+          </div>
+
+          <!-- Ledger summary cards -->
+          <div class="student-grid-stats">
+            <div class="mini-stat-card">
+              <div class="mini-stat-icon-wrapper primary">
+                <span class="material-symbols-outlined">group</span>
+              </div>
+              <div class="mini-stat-info">
+                <span class="mini-stat-label">Total Students</span>
+                <span class="mini-stat-num" id="stud-stat-total">32</span>
+              </div>
+            </div>
+            <div class="mini-stat-card">
+              <div class="mini-stat-icon-wrapper secondary">
+                <span class="material-symbols-outlined">check_circle</span>
+              </div>
+              <div class="mini-stat-info">
+                <span class="mini-stat-label">Linked RFID Cards</span>
+                <span class="mini-stat-num" id="stud-stat-active">28</span>
+              </div>
+            </div>
+            <div class="mini-stat-card">
+              <div class="mini-stat-icon-wrapper error">
+                <span class="material-symbols-outlined">warning</span>
+              </div>
+              <div class="mini-stat-info">
+                <span class="mini-stat-label">Pending RFID</span>
+                <span class="mini-stat-num" id="stud-stat-pending">4</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter / Control Bar -->
+          <div class="filter-bar">
+            <div class="filter-left">
+              <div class="search-input-wrapper">
+                <span class="material-symbols-outlined search-icon">search</span>
+                <input type="text" id="students-search-input" class="search-input"
+                  placeholder="Search by name or student ID..." oninput="App.renderStudents();">
+              </div>
+              <select id="students-grade-filter" class="select-filter" onchange="App.renderStudents();">
+                <!-- Dynamically populated -->
+              </select>
+              <select id="students-roster-view" class="select-filter" onchange="App.renderStudents();">
+                <option value="active" selected>Active Roster</option>
+                <option value="archived">Archived Pupils</option>
+              </select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-icon-outline" title="Filter Settings">
+                <span class="material-symbols-outlined">filter_list</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Student Ledger Table -->
+          <div class="table-card" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg); border-top: none;">
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Student Details</th>
+                    <th>Student ID</th>
+                    <th>Gender</th>
+                    <th>Grade & Section</th>
+                    <th>RFID Status / UID</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="students-tbody">
+                  <!-- JS generated rows -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-pagination-footer">
+              <span class="pagination-text" id="students-pagination-text">Showing 1 to 4 of 32 students</span>
+              <div class="pagination-btn-group">
+                <button class="btn-page-nav" disabled>Previous</button>
+                <button class="btn-page-num active">1</button>
+                <button class="btn-page-num">2</button>
+                <button class="btn-page-num">3</button>
+                <span style="padding: 0 8px; color: var(--outline);">...</span>
+                <button class="btn-page-num">8</button>
+                <button class="btn-page-nav">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN: ATTENDANCE RECORDS (HISTORY) -->
+        <div class="screen-view" id="records-screen">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h3>Attendance Records Ledger</h3>
+              <p>Review and make manual edits to student historical attendance logs.</p>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-icon-outline" onclick="App.openMonthlyReportSelector();"
+                title="Export Monthly Attendance Report"
+                style="width: auto; padding: 0 16px; gap: 8px; font-weight: 700;">
+                <span class="material-symbols-outlined">file_download</span> Export Monthly Report
+              </button>
+            </div>
+          </div>
+
+          <!-- History Stats Row -->
+          <div class="historical-overview-row">
+            <div class="historical-card">
+              <span class="historical-card-label">Average Attendance</span>
+              <span class="historical-card-num" id="rec-stat-avg">94%</span>
+              <span class="historical-card-desc increase">
+                <span class="material-symbols-outlined" style="font-size:16px;">trending_up</span> +2% from last month
+              </span>
+            </div>
+            <div class="historical-card">
+              <span class="historical-card-label">Checked-In Ratio</span>
+              <span class="historical-card-num" id="rec-stat-ratio">0/32</span>
+              <span class="historical-card-desc">Scan check-in success</span>
+            </div>
+            <div class="historical-card" style="display: none;">
+              <span class="historical-card-label">Late Arrivals</span>
+              <span class="historical-card-num" style="color: var(--status-late);" id="rec-stat-late">00</span>
+              <span class="historical-card-desc">Requires advisor review</span>
+            </div>
+            <div class="historical-card">
+              <span class="historical-card-label">Unexcused Absences</span>
+              <span class="historical-card-num" style="color: var(--status-absent);" id="rec-stat-absent">00</span>
+              <span class="historical-card-desc">Absence alerts queue</span>
+            </div>
+          </div>
+
+          <!-- Filter Control Header -->
+          <div class="filter-bar">
+            <div class="filter-left">
+              <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
+                <input type="date" id="records-date-filter" class="form-input" style="height: 40px;"
+                  onchange="App.renderRecords();">
+              </div>
+              <select id="records-session-filter" class="select-filter" onchange="App.renderRecords();">
+                <option value="AM" selected>Morning (AM)</option>
+                <option value="PM">Afternoon (PM)</option>
+              </select>
+              <select id="records-grade-filter" class="select-filter" onchange="App.renderRecords();">
+                <!-- Dynamically populated -->
+              </select>
+              <select id="records-status-filter" class="select-filter" onchange="App.renderRecords();">
+                <option value="All">All Statuses</option>
+                <option value="PRESENT">Present</option>
+                <option value="ABSENT">Absent</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Attendance Logs Table -->
+          <div class="table-card" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg); border-top: none;">
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Student Profile</th>
+                    <th>Student ID</th>
+                    <th>Checked-in Time</th>
+                    <th>Verification Method</th>
+                    <th>Attendance Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="records-tbody">
+                  <!-- JS generated rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN: SETTINGS -->
+        <div class="screen-view" id="settings-screen">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h3>Account Settings</h3>
+              <p>Configure attendance rules, connected scanners, and profile parameters.</p>
+            </div>
+          </div>
+
+          <div class="settings-layout">
+            <div class="settings-main-column">
+              <!-- Card: Rules Settings -->
+              <div class="settings-section-card">
+                <div class="settings-section-header">
+                  <div class="settings-section-icon-wrapper">
+                    <span class="material-symbols-outlined">rule</span>
+                  </div>
+                  <h3>Attendance Rules Config</h3>
+                </div>
+
+                <form id="settings-rules-form" onsubmit="event.preventDefault(); App.saveSettingsRules({
+                  lateThresholdMinutes: 15,
+                  defaultStartTime: document.getElementById('settings-am-start-time').value,
+                  defaultLateTime: document.getElementById('settings-am-late-min').value,
+                  amStartTime: document.getElementById('settings-am-start-time').value,
+                  amLateMin: document.getElementById('settings-am-late-min').value,
+                  amLateMax: document.getElementById('settings-am-late-max').value,
+                  amDeadline: document.getElementById('settings-am-deadline').value,
+                  pmStartTime: document.getElementById('settings-pm-start-time').value,
+                  pmLateMin: document.getElementById('settings-pm-late-min').value,
+                  pmLateMax: document.getElementById('settings-pm-late-max').value,
+                  pmDeadline: document.getElementById('settings-pm-deadline').value,
+                  serverSyncUrl: document.getElementById('settings-sync-url').value,
+                  mockServerMode: document.getElementById('settings-mock-sync').checked
+                });">
+                  <div class="settings-form-row">
+                    <div class="form-group">
+                      <label for="settings-sync-url">Cloud Database Sync Endpoint URL</label>
+                      <input type="url" id="settings-sync-url" class="form-input"
+                        placeholder="https://api.domain.com/sync" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="settings-mock-sync">Auto-Sync Integration Mode</label>
+                      <div class="sim-toggle-row"
+                        style="background-color: var(--background); height: 48px; border: 2px solid var(--outline-variant); border-radius: var(--radius-md);">
+                        <span style="font-size: 13px; color: var(--text-secondary);">Simulate Cloud API</span>
+                        <label class="switch-btn-toggle">
+                          <input type="checkbox" id="settings-mock-sync">
+                          <span class="slider-switch-bg"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h4
+                    style="font-size: 14px; font-weight: 700; color: var(--primary); margin: 20px 0 10px 0; border-bottom: 1px solid var(--outline-variant); padding-bottom: 6px;">
+                    Morning Session (AM) Rules</h4>
+                  <div class="settings-form-row">
+                    <div class="form-group">
+                      <label for="settings-am-start-time">AM Start Time</label>
+                      <input type="time" id="settings-am-start-time" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="settings-am-deadline">AM Session End Time (Deadline)</label>
+                      <input type="time" id="settings-am-deadline" class="form-input" required>
+                    </div>
+                  </div>
+                  <input type="hidden" id="settings-am-late-min">
+                  <input type="hidden" id="settings-am-late-max">
+
+                  <h4
+                    style="font-size: 14px; font-weight: 700; color: var(--primary); margin: 20px 0 10px 0; border-bottom: 1px solid var(--outline-variant); padding-bottom: 6px;">
+                    Afternoon Session (PM) Rules</h4>
+                  <div class="settings-form-row" style="margin-bottom: 24px;">
+                    <div class="form-group">
+                      <label for="settings-pm-start-time">PM Start Time</label>
+                      <input type="time" id="settings-pm-start-time" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="settings-pm-deadline">PM Session End Time (Deadline)</label>
+                      <input type="time" id="settings-pm-deadline" class="form-input" required>
+                    </div>
+                  </div>
+                  <input type="hidden" id="settings-pm-late-min">
+                  <input type="hidden" id="settings-pm-late-max">
+
+                  <div style="display: flex; justify-content: flex-end;">
+                    <button type="submit" id="settings-rules-submit-btn" class="btn-primary"
+                      style="width: auto; padding: 0 32px;">Update Rules</button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Card: Manage School Sections -->
+              <div class="settings-section-card" id="settings-sections-card" style="margin-top: 24px; display: none;">
+                <div class="settings-section-header">
+                  <div class="settings-section-icon-wrapper"
+                    style="background-color: var(--primary-container); color: var(--primary);">
+                    <span class="material-symbols-outlined">grid_view</span>
+                  </div>
+                  <h3>Manage School Sections</h3>
+                </div>
+
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; font-weight: 500;">
+                  Add or delete grade level sections. These sections will appear as options when registering student
+                  profiles and teacher accounts.
+                </p>
+
+                <!-- Add Section Form -->
+                <form id="settings-sections-form" onsubmit="event.preventDefault(); App.handleAddSection();"
+                  style="display: flex; gap: 12px; align-items: flex-end; margin-bottom: 24px;">
+                  <div class="form-group" style="margin-bottom: 0; flex-grow: 1;">
+                    <label for="new-section-name">New Section Name</label>
+                    <input type="text" id="new-section-name" class="form-input" placeholder="e.g. Grade 3 - Narra"
+                      required>
+                  </div>
+                  <button type="submit" class="btn-primary"
+                    style="width: auto; height: 48px; padding: 0 24px; white-space: nowrap;">
+                    <span class="material-symbols-outlined" style="margin-right: 4px; font-size: 18px;">add</span> Add
+                    Section
+                  </button>
+                </form>
+
+                <!-- List of Sections -->
+                <div class="table-responsive"
+                  style="border: 1px solid var(--outline-variant); border-radius: var(--radius-md); max-height: 250px; overflow-y: auto;">
+                  <table class="custom-table" style="margin-bottom: 0;">
+                    <thead>
+                      <tr>
+                        <th style="padding: 10px 16px;">Section Name</th>
+                        <th style="padding: 10px 16px; text-align: right;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="settings-sections-tbody">
+                      <!-- JS generated rows -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Card: Firebase Configuration -->
+              <div class="settings-section-card" style="margin-top: 24px;">
+                <div class="settings-section-header">
+                  <div class="settings-section-icon-wrapper" style="background-color: #fef3c7; color: #d97706;">
+                    <span class="material-symbols-outlined">cloud</span>
+                  </div>
+                  <h3>Firebase Cloud Integration</h3>
+                </div>
+
+                <form id="settings-firebase-form" onsubmit="event.preventDefault(); App.saveFirebaseConfig({
+                  apiKey: document.getElementById('fb-api-key').value,
+                  authDomain: document.getElementById('fb-auth-domain').value,
+                  projectId: document.getElementById('fb-project-id').value,
+                  storageBucket: document.getElementById('fb-storage-bucket').value,
+                  messagingSenderId: document.getElementById('fb-messaging-id').value,
+                  appId: document.getElementById('fb-app-id').value
+                });">
+                  <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; font-weight: 500;">
+                    Connect the application directly to Firebase Firestore. When active, all changes to student
+                    profiles, RFID cards, and attendance scans synchronize automatically in real-time, even offline.
+                  </p>
+
+                  <div class="settings-form-row">
+                    <div class="form-group">
+                      <label for="fb-project-id">Project ID</label>
+                      <input type="text" id="fb-project-id" class="form-input" placeholder="e.g. classroom-pulse-123"
+                        required>
+                    </div>
+                    <div class="form-group">
+                      <label for="fb-api-key">API Key</label>
+                      <input type="password" id="fb-api-key" class="form-input" placeholder="Firebase API Key" required>
+                    </div>
+                  </div>
+
+                  <div class="settings-form-row">
+                    <div class="form-group">
+                      <label for="fb-auth-domain">Auth Domain</label>
+                      <input type="text" id="fb-auth-domain" class="form-input"
+                        placeholder="e.g. project-id.firebaseapp.com">
+                    </div>
+                    <div class="form-group">
+                      <label for="fb-app-id">App ID</label>
+                      <input type="text" id="fb-app-id" class="form-input" placeholder="e.g. 1:123456:web:abcd"
+                        required>
+                    </div>
+                  </div>
+
+                  <div class="settings-form-row" style="margin-bottom: 24px;">
+                    <div class="form-group">
+                      <label for="fb-storage-bucket">Storage Bucket</label>
+                      <input type="text" id="fb-storage-bucket" class="form-input"
+                        placeholder="e.g. project-id.appspot.com">
+                    </div>
+                    <div class="form-group">
+                      <label for="fb-messaging-id">Messaging Sender ID</label>
+                      <input type="text" id="fb-messaging-id" class="form-input" placeholder="e.g. 9876543210">
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button type="button" class="btn-danger-outline" onclick="App.clearFirebaseConfig();"
+                      style="height: 44px; padding: 0 20px;">Disconnect Cloud</button>
+                    <button type="submit" class="btn-primary" style="width: auto; padding: 0 32px;">Save Cloud
+                      Config</button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Card: Danger Zone -->
+              <div class="settings-section-card" style="border-color: rgba(239, 68, 68, 0.3);">
+                <div class="danger-zone-settings-box">
+                  <h4>Danger Zone</h4>
+                  <div class="danger-zone-settings-layout">
+                    <p class="danger-zone-settings-txt">Delete this account profile, local students databases, and
+                      attendance history logs permanently. This cannot be undone.</p>
+                    <button class="btn-danger-outline" onclick="App.handleResetDatabase();">Reset Database</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Settings Sidebar Column -->
+            <div class="settings-sidebar-column">
+              <!-- User Profile Details -->
+              <div class="user-profile-settings-card">
+                <div class="profile-settings-corner-bg"></div>
+                <div class="profile-settings-avatar-wrapper">
+                  <img src="assets/photos/teacher_santos.png" alt="Teacher Avatar">
+                </div>
+                <h4 class="teacher-name">Mrs. Elena Santos</h4>
+                <p class="teacher-role">Grade 3 Adviser</p>
+
+                <div class="profile-btn-list">
+                  <button class="btn-profile-row"
+                    onclick="App.showToast('Profile password changes are locked offline.');">
+                    <span>Change password</span>
+                    <span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span>
+                  </button>
+                  <button class="btn-profile-row"
+                    onclick="App.showToast('Profile email configurations are locked offline.');">
+                    <span>Update Email</span>
+                    <span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Connected Hardware status -->
+              <div class="glass-card" style="padding: 20px;">
+                <div class="settings-section-header" style="margin-bottom: 16px; padding-bottom: 12px;">
+                  <span class="material-symbols-outlined" style="color: var(--primary); margin-right: 8px;">nfc</span>
+                  <h3 style="font-size: 15px;">Hardware Setup</h3>
+                </div>
+
+                <div class="device-item-box">
+                  <div class="device-item-left">
+                    <div class="device-icon-box">
+                      <span class="material-symbols-outlined" style="font-size: 20px;">contactless</span>
+                    </div>
+                    <div class="device-details-txt">
+                      <span class="device-name-txt" id="device-name-text">RFID Scanner 01</span>
+                      <span class="device-id-txt">USB-HID PNP • COM3</span>
+                    </div>
+                  </div>
+                  <span class="device-status-badge-green" id="device-status-badge">CONNECTED</span>
+                </div>
+
+                <div class="device-dashed-add-box" onclick="App.handlePairHardware();">
+                  <span class="material-symbols-outlined"
+                    style="font-size: 16px; vertical-align: middle;">add_circle</span> Add New Device
+                </div>
+
+                <button class="btn-text" style="width: 100%; height: 38px; margin-top: 16px; font-size: 12px;"
+                  onclick="App.showToast('Diagnostics complete: RFID Reader UHF-R200 status 100% operational.');">Run
+                  Diagnostics</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN: LIVE SESSION MONITOR -->
+        <div class="screen-view" id="session-screen">
+
+          <!-- State A: SETUP VIEW -->
+          <div id="session-setup-view" class="session-setup-card">
+            <div class="session-setup-icon">
+              <span class="material-symbols-outlined">calendar_today</span>
+            </div>
+            <h3>Session Setup</h3>
+            <p>Confirm the classroom attendance date and session type before starting the RFID scanner lobby.</p>
+
+            <div class="form-group"
+              style="margin-bottom: 16px; max-width: 320px; margin-left: auto; margin-right: auto;">
+              <label for="session-date-picker">Date of Attendance</label>
+              <input type="date" id="session-date-picker" class="form-input" style="text-align: center;">
+            </div>
+
+            <div class="form-group"
+              style="margin-bottom: 32px; max-width: 320px; margin-left: auto; margin-right: auto;">
+              <label for="session-type-picker">Session Type</label>
+              <select id="session-type-picker" class="select-filter"
+                style="width: 100%; height: 48px; text-align-last: center;">
+                <option value="AM" selected>Morning Session (AM)</option>
+                <option value="PM">Afternoon Session (PM)</option>
+              </select>
+            </div>
+
+            <button class="session-start-btn"
+              onclick="App.startAttendanceSession(document.getElementById('session-date-picker').value, document.getElementById('session-type-picker').value);">
+              <span class="material-symbols-outlined">play_circle</span> Confirm & Start Scanning
+            </button>
+          </div>
+
+          <!-- State B/C Layout Container -->
+          <div class="live-session-grid" id="session-active-layout" style="display: none; height: 100%;">
+
+            <!-- Left Lobby Scanning Column -->
+            <div style="position: relative; height: 100%; display: flex; flex-direction: column;">
+
+              <!-- Sub-state B: Radar Scanning Lobby -->
+              <div id="session-scanning-view" class="scanning-lobby">
+                <div class="session-meta-tag">
+                  <span class="material-symbols-outlined">event</span>
+                  <span class="session-date-display">Monday, October 23rd</span>
+                </div>
+
+                <div class="scanner-radar-outer">
+                  <div class="scanner-radar-radar-line"></div>
+                  <span class="material-symbols-outlined">nfc</span>
+                </div>
+
+                <h3>Ready to Scan</h3>
+                <p>Please tap your RFID pupil identity card against the reader to record session attendance.</p>
+
+                <div class="scan-session-stats-row">
+                  <div class="lobby-stat-bubble present" id="session-lobby-present-count">0 Present</div>
+                  <div class="lobby-stat-bubble late" id="session-lobby-late-count">0 Late</div>
+                </div>
+              </div>
+
+              <!-- Sub-state C: Scan Success Screen Card -->
+              <div id="session-success-view" class="success-scan-card" style="display: none;">
+                <div class="student-photo-column">
+                  <img id="success-student-photo" src="" alt="Student Profile">
+                  <div class="success-badge-photo-overlay"></div>
+                </div>
+                <div class="student-details-column">
+                  <span class="success-title-tag">Attendance Recorded</span>
+                  <h3 id="success-student-name">Mateo Santos</h3>
+                  <div class="student-id-display">
+                    <span class="material-symbols-outlined">id_card</span> Student ID: <strong
+                      id="success-student-id">2024-0002</strong>
+                  </div>
+
+                  <div class="status-checkin-banner" id="success-status-banner">
+                    <div class="status-checkin-left">
+                      <h4 id="success-status-text">PRESENT</h4>
+                      <p id="success-scan-time">Recorded at 07:42:15 AM</p>
+                    </div>
+                    <span class="material-symbols-outlined" id="success-status-icon">check_circle</span>
+                  </div>
+
+                  <button class="success-reset-btn" onclick="App.resetSuccessCard();">
+                    <span class="material-symbols-outlined">refresh</span> Reset for Next Scan
+                  </button>
+                </div>
+              </div>
+
+              <!-- Floating Control Bar -->
+              <div class="session-controls-floating-bar">
+                <button class="floating-bar-btn" onclick="App.pauseAttendanceSession();">
+                  <span class="material-symbols-outlined">pause_circle</span> Pause Session
+                </button>
+                <div class="floating-divider"></div>
+                <button class="floating-bar-btn stop" onclick="App.stopAttendanceSession();">
+                  <span class="material-symbols-outlined">stop_circle</span> End Session
+                </button>
+                <div class="floating-divider"></div>
+                <div class="floating-bar-controls-right">
+                  <span class="material-symbols-outlined"
+                    onclick="App.showToast('Beep notifications volume set to 100%');"
+                    title="Mute Volume">volume_up</span>
+                  <span class="material-symbols-outlined" onclick="App.showToast('Entered Fullscreen Scan mode.');"
+                    title="Fullscreen Monitor">fullscreen</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right Sidebar: Recent Arrivals Logs -->
+            <div class="session-recent-scans-panel">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h4>Recent Arrivals</h4>
+                <span id="session-confirmed-ratio"
+                  style="font-size: 13px; font-weight: 800; color: var(--primary);">0/32</span>
+              </div>
+              <div class="recent-scans-scroller" id="recent-scans-scroller">
+                <!-- arrival cards generated by JS -->
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- ==================== MODALS INJECTION ==================== -->
+
+  <!-- MODAL: RFID CARD REGISTRATION -->
+  <div class="modal-overlay" id="rfid-reg-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h4>RFID Card Association</h4>
+        <button class="btn-close-modal" onclick="App.closeRfidRegistration();">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <div class="rfid-scan-modal-pulse">
+          <span class="material-symbols-outlined">contactless</span>
+        </div>
+        <h3 id="reg-student-name" style="font-size: 20px; margin-bottom: 6px;">Elena Rodriguez</h3>
+        <p id="reg-student-details" style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Grade 3 -
+          Narra • ID: 2024-0001</p>
+
+        <div class="rfid-scan-student-summary">
+          <img id="reg-student-photo" src="assets/photos/student_elena.png" alt="Student Photo"
+            style="width: 52px; height: 52px; border-radius: var(--radius-full); object-fit: cover; border: 1px solid var(--outline-variant);">
+          <div class="form-group" style="margin-bottom: 0; flex-grow: 1;">
+            <label for="reg-uid-input" style="font-size: 11px;">DETECTED CARD UNIQUE IDENTIFIER (UID)</label>
+            <input type="text" id="reg-uid-input" class="form-input"
+              style="height: 38px; font-family: monospace; font-weight: 700; text-transform: uppercase;"
+              placeholder="Place card on reader..." readonly>
+          </div>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
+          <span class="material-symbols-outlined"
+            style="font-size: 14px; vertical-align: middle; color: var(--primary);">info</span>
+          Tap a new RFID card on the physical scanner to update the UID automatically.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-text" onclick="App.closeRfidRegistration();">Cancel</button>
+        <button class="btn-modal-primary" id="reg-confirm-btn" onclick="App.confirmRfidRegistration();" disabled>Confirm
+          & Link Card</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT STUDENT PROFILE -->
+  <div class="modal-overlay" id="student-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h4 id="student-modal-title">Register New Student Profile</h4>
+        <button class="btn-close-modal" onclick="App.closeStudentModal();">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="student-profile-form" onsubmit="event.preventDefault(); App.saveStudentProfile({
+        id: document.getElementById('student-form-id').value,
+        student_number: document.getElementById('student-form-number').value,
+        full_name: document.getElementById('student-form-name').value,
+        grade_section: document.getElementById('student-form-section').value,
+        gender: document.getElementById('student-form-gender').value,
+        guardian_name: document.getElementById('student-form-guardian').value,
+        contact_number: document.getElementById('student-form-contact').value,
+        relationship: document.getElementById('student-form-relation').value
+      });">
+        <div class="modal-body">
+          <input type="hidden" id="student-form-id">
+
+          <div class="student-form-grid">
+            <div class="avatar-upload-container">
+              <input type="file" id="student-form-photo-input" accept="image/*" style="display: none;"
+                onchange="App.handleStudentPhotoUpload(event);">
+              <div class="avatar-upload-preview-wrapper"
+                onclick="document.getElementById('student-form-photo-input').click();">
+                <img id="student-avatar-img-preview" class="avatar-upload-preview" src="">
+                <div class="avatar-upload-placeholder" id="student-avatar-placeholder">
+                  <span class="material-symbols-outlined">add_a_photo</span>
+                  <p>Upload</p>
+                </div>
+              </div>
+              <p
+                style="font-size: 9px; color: var(--text-muted); font-weight: 600; margin-top: 6px; text-transform: uppercase;">
+                Student Photo</p>
+            </div>
+
+            <div class="form-fields-stack" style="display: flex; flex-direction: column; gap: 12px; flex-grow: 1;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="student-form-name">Student Full Name</label>
+                <input type="text" id="student-form-name" class="form-input" placeholder="e.g. Elena Rodriguez"
+                  required>
+              </div>
+              <div class="settings-form-row" style="margin-top: 0; margin-bottom: 0; gap: 12px;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                  <label for="student-form-number">Student ID Number</label>
+                  <input type="text" id="student-form-number" class="form-input" placeholder="e.g. 2024-0001" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0; width: 100px; flex: none;">
+                  <label for="student-form-gender">Gender</label>
+                  <select id="student-form-gender" class="select-filter" style="width: 100%; height: 48px;">
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="student-form-section">Grade & Classroom Section</label>
+            <select id="student-form-section" class="select-filter" style="width: 100%; height: 48px;">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+
+          <div style="border-top: 1px solid var(--outline-variant); margin: 24px 0 16px 0; padding-top: 16px;">
+            <h5
+              style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;">
+              Guardian Information</h5>
+            <div class="form-group">
+              <label for="student-form-guardian">Parent / Guardian Name</label>
+              <input type="text" id="student-form-guardian" class="form-input" placeholder="e.g. Maria Rodriguez"
+                required>
+            </div>
+            <div class="settings-form-row" style="margin-top: 16px; margin-bottom: 0;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="student-form-contact">Contact Number</label>
+                <input type="tel" id="student-form-contact" class="form-input" placeholder="e.g. +63 917 123 4567"
+                  required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="student-form-relation">Relationship</label>
+                <select id="student-form-relation" class="select-filter" style="width: 100%; height: 48px;">
+                  <option value="Mother">Mother</option>
+                  <option value="Father">Father</option>
+                  <option value="Legal Guardian">Legal Guardian</option>
+                  <option value="Other Relative">Other Relative</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-text" onclick="App.closeStudentModal();">Cancel</button>
+          <button type="submit" class="btn-modal-primary">Save Student Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT TEACHER PROFILE -->
+  <div class="modal-overlay" id="teacher-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h4 id="teacher-modal-title">Create Teacher Account</h4>
+        <button class="btn-close-modal" onclick="App.closeTeacherModal();">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="teacher-profile-form" onsubmit="event.preventDefault(); App.saveTeacherProfile({
+        username: document.getElementById('teacher-form-username').value,
+        display_name: document.getElementById('teacher-form-name').value,
+        role: document.getElementById('teacher-form-role').value,
+        section: document.getElementById('teacher-form-section').value,
+        password: document.getElementById('teacher-form-password').value
+      });">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="teacher-form-name">Teacher Full Name</label>
+            <input type="text" id="teacher-form-name" class="form-input" placeholder="e.g. Mrs. Elena Santos" required>
+          </div>
+
+          <div class="settings-form-row" style="margin-top: 16px;">
+            <div class="form-group">
+              <label for="teacher-form-role">Role / Title</label>
+              <select id="teacher-form-role" class="select-filter" style="width: 100%; height: 48px;" required>
+                <option value="Grade 1 Adviser">Grade 1 Adviser</option>
+                <option value="Grade 2 Adviser">Grade 2 Adviser</option>
+                <option value="Grade 3 Adviser">Grade 3 Adviser</option>
+                <option value="Grade 4 Adviser">Grade 4 Adviser</option>
+                <option value="Grade 5 Adviser">Grade 5 Adviser</option>
+                <option value="Grade 6 Adviser">Grade 6 Adviser</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="teacher-form-section">Assigned Section</label>
+              <select id="teacher-form-section" class="select-filter" style="width: 100%; height: 48px;" required>
+                <!-- Dynamically populated -->
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-form-row" style="margin-top: 16px;">
+            <div class="form-group">
+              <label for="teacher-form-username">Username</label>
+              <input type="text" id="teacher-form-username" class="form-input" placeholder="e.g. elena_santos" required>
+            </div>
+            <div class="form-group" id="teacher-password-group">
+              <label for="teacher-form-password">Temporary Password</label>
+              <input type="text" id="teacher-form-password" class="form-input" placeholder="Temporary password" required
+                minlength="6">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="margin-top: 24px;">
+          <button type="button" class="btn-text" onclick="App.closeTeacherModal();">Cancel</button>
+          <button type="submit" class="btn-modal-primary">Save Advisor Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MANUAL CHECK-IN ENTRY -->
+  <div class="modal-overlay" id="manual-entry-modal">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <h4 id="manual-entry-title">Manual Attendance Entry</h4>
+        <button class="btn-close-modal" onclick="App.closeManualEntryModal();">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="manual-entry-student-id">
+        <input type="hidden" id="manual-entry-date">
+
+        <div class="form-group">
+          <label for="manual-entry-session">Session Type</label>
+          <select id="manual-entry-session" class="select-filter" style="width: 100%; height: 48px;">
+            <option value="AM" selected>Morning (AM)</option>
+            <option value="PM">Afternoon (PM)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="manual-entry-time">Time In</label>
+          <input type="time" id="manual-entry-time" class="form-input" value="07:30" required>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="manual-entry-status">Attendance Status</label>
+          <select id="manual-entry-status" class="select-filter" style="width: 100%; height: 48px;">
+            <option value="PRESENT">Present</option>
+            <option value="ABSENT">Absent</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-text" onclick="App.closeManualEntryModal();">Cancel</button>
+        <button class="btn-modal-primary" onclick="App.submitManualCheckin(
+          document.getElementById('manual-entry-student-id').value,
+          document.getElementById('manual-entry-date').value,
+          document.getElementById('manual-entry-session').value,
+          document.getElementById('manual-entry-time').value,
+          document.getElementById('manual-entry-status').value
+        );">Save Check-In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DASHBOARD STUDENTS STATUS LIST -->
+  <div class="modal-overlay" id="dashboard-list-modal">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <h4 id="dashboard-list-modal-title">Attendance List</h4>
+        <button class="btn-close-modal" onclick="App.closeDashboardListModal();">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body" style="padding-top: 10px;">
+        <div class="table-responsive"
+          style="max-height: 400px; overflow-y: auto; border: 1px solid var(--outline-variant); border-radius: var(--radius-md);">
+          <table class="custom-table" style="margin-bottom: 0;">
+            <thead>
+              <tr>
+                <th style="padding: 10px 16px;">Student</th>
+                <th style="padding: 10px 16px;">Status / Time</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-list-modal-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer" style="padding: 16px 24px;">
+        <button class="btn-primary" onclick="App.closeDashboardListModal();"
+          style="width: 100%; border: none; height: 44px; font-weight: 700; border-radius: var(--radius-md); background-color: var(--primary); color: var(--on-primary); cursor: pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST ALERT WIDGET -->
+  <div class="toast-msg-box" id="toast-msg">
+    <div class="toast-icon-circle-green">
+      <span class="material-symbols-outlined">done</span>
+    </div>
+    <span class="toast-txt-msg" id="toast-msg-text">Database check completed successfully.</span>
+  </div>
+
+  <!-- MODAL: CUSTOM CONFIRMATION DIALOG -->
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal-card" style="max-width: 400px; text-align: center;">
+      <div class="modal-body" style="padding: 32px 24px 24px 24px;">
+        <div
+          style="width: 56px; height: 56px; background-color: var(--status-absent-bg); color: var(--status-absent); border-radius: var(--radius-full); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+          <span class="material-symbols-outlined" style="font-size: 32px;" id="confirm-modal-icon">warning</span>
+        </div>
+        <h3 id="confirm-modal-title"
+          style="font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--text-primary);">Confirm Action</h3>
+        <p id="confirm-modal-message"
+          style="font-size: 13px; color: var(--text-secondary); font-weight: 500; line-height: 1.5; margin-bottom: 0;">
+          Are you sure you want to proceed?</p>
+      </div>
+      <div class="modal-footer"
+        style="padding: 16px 24px; display: flex; gap: 12px; justify-content: stretch; background-color: var(--surface);">
+        <button type="button" class="btn-text" id="confirm-modal-cancel-btn"
+          style="flex: 1; height: 40px; border-radius: var(--radius-md);">Cancel</button>
+        <button type="button" class="btn-modal-primary" id="confirm-modal-confirm-btn"
+          style="flex: 1; height: 40px; background-color: var(--status-absent); border-radius: var(--radius-md); box-shadow: none;">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MONTHLY REPORT SELECTOR -->
+  <div class="modal-overlay" id="monthly-report-modal">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <h4>Generate Monthly Report</h4>
+        <button class="btn-close-modal" onclick="App.closeMonthlyReportSelector();">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="monthly-report-form" onsubmit="event.preventDefault(); App.generateMonthlyReport(
+        document.getElementById('report-month').value,
+        document.getElementById('report-year').value,
+        document.getElementById('report-section').value,
+        document.getElementById('report-session').value
+      );">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="report-month">Select Month</label>
+            <select id="report-month" class="select-filter" style="width: 100%; height: 48px;">
+              <option value="0">January</option>
+              <option value="1">February</option>
+              <option value="2">March</option>
+              <option value="3">April</option>
+              <option value="4">May</option>
+              <option value="5">June</option>
+              <option value="6">July</option>
+              <option value="7">August</option>
+              <option value="8">September</option>
+              <option value="9">October</option>
+              <option value="10">November</option>
+              <option value="11">December</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-top: 16px;">
+            <label for="report-year">Select Year</label>
+            <select id="report-year" class="select-filter" style="width: 100%; height: 48px;">
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-top: 16px;">
+            <label for="report-section">Classroom Section</label>
+            <select id="report-section" class="select-filter" style="width: 100%; height: 48px;">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div class="form-group" style="margin-top: 16px; display: none;">
+            <label for="report-session">Session Type</label>
+            <select id="report-session" class="select-filter" style="width: 100%; height: 48px;">
+              <option value="COMBINED" selected>Whole Day (AM + PM)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-text" onclick="App.closeMonthlyReportSelector();">Cancel</button>
+          <button type="submit" class="btn-modal-primary">Generate Preview</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REPORT PREVIEW & PRINT -->
+  <div class="modal-overlay" id="report-preview-modal" style="z-index: 2000;">
+    <div class="modal-card"
+      style="max-width: 95%; width: 1200px; height: 90vh; display: flex; flex-direction: column; padding: 0;">
+      <div class="modal-header"
+        style="padding: 16px 24px; border-bottom: 1px solid var(--outline-variant); flex-shrink: 0;">
+        <h4 style="font-weight: 800;">Monthly Attendance Report Preview</h4>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn-primary" onclick="App.downloadExcelReport();"
+            style="display: flex; align-items: center; gap: 8px; font-weight: 700; height: 38px; padding: 0 16px; border: none; background-color: #0d9488; color: white; cursor: pointer; border-radius: var(--radius-md);">
+            <span class="material-symbols-outlined" style="font-size: 18px;">download</span> Download Excel
+          </button>
+          <button class="btn-primary" onclick="App.printMonthlyReport();"
+            style="display: flex; align-items: center; gap: 8px; font-weight: 700; height: 38px; padding: 0 16px; border: none; background-color: var(--primary); color: var(--on-primary); cursor: pointer; border-radius: var(--radius-md);">
+            <span class="material-symbols-outlined" style="font-size: 18px;">print</span> Print Report
+          </button>
+          <button class="btn-outline" onclick="App.closeReportPreview();"
+            style="display: flex; align-items: center; gap: 8px; font-weight: 700; height: 38px; padding: 0 16px; border: 1px solid var(--outline); background: transparent; color: var(--text-primary); cursor: pointer; border-radius: var(--radius-md);">
+            <span class="material-symbols-outlined" style="font-size: 18px;">close</span> Close
+          </button>
+        </div>
+      </div>
+      <div class="modal-body" id="report-preview-body"
+        style="flex-grow: 1; overflow-y: auto; background-color: #f1f5f9; padding: 32px; display: flex; justify-content: center;">
+        <div class="print-paper-sheet" id="print-paper-sheet">
+          <!-- Dynamic SF2-like report goes here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DEMONSTRATION & CONTROL PANEL ==================== -->
+
+  <div class="sim-overlay-panel" id="sim-panel">
+    <div class="sim-overlay-header">
+      <span>Simulation & Demo Bar</span>
+      <button class="btn-toggle-sim"
+        onclick="const panel = document.getElementById('sim-panel-content'); panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';"
+        title="Collapse Console">
+        <span class="material-symbols-outlined" style="font-size:16px;">unfold_less</span>
+      </button>
+    </div>
+    <div class="sim-overlay-body" id="sim-panel-content" style="display: flex; flex-direction: column;">
+
+      <!-- Network Connectivity simulator -->
+      <div class="sim-control-group">
+        <div class="sim-label">Connectivity Control</div>
+        <div class="sim-toggle-row">
+          <span>Internet Network Status</span>
+          <label class="switch-btn-toggle">
+            <input type="checkbox" id="sim-network-toggle" checked onchange="App.setMockOffline(!this.checked);">
+            <span class="slider-switch-bg"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Card Scanner simulator -->
+      <div class="sim-control-group">
+        <div class="sim-label">Simulate RFID Tap</div>
+        <select id="sim-student-select" class="sim-select-student">
+          <option value="E2801108C5">Elena Rodriguez (Linked Card)</option>
+          <option value="A4F92210D2">Sofia Gomez (Linked Card)</option>
+          <option value="B7C34491F8">Julian Cruz (Linked Card)</option>
+          <option value="MATEO_TAP">Mateo Santos (Unlinked student)</option>
+          <option value="99F12388D2">Unregistered Card (UID: 99F12388D2)</option>
+        </select>
+
+        <button class="btn-sim-tap" onclick="
+          const sel = document.getElementById('sim-student-select').value;
+          if (sel === 'MATEO_TAP') {
+            App.handleRFIDScan('E2801108C5'); // Mateo's target card
+          } else {
+            App.handleRFIDScan(sel);
+          }
+        ">Simulate RFID Tap</button>
+      </div>
+
+      <div
+        style="font-size: 9px; color: #64748b; font-weight: 500; text-align: center; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+        Note: The global listener detects rapid key input from USB RFID scanners matching a 10-digit UID + Enter
+        sequence.
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== APPLICATION SCRIPTS ==================== -->
+  <!-- Firebase App & Firestore Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <!-- SheetJS Spreadsheet SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="database.js"></script>
+  <script src="app.js"></script>
+
+</body>
+
+</html>

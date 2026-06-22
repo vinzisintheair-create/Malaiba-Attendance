@@ -1,0 +1,5 @@
+node_modules/
+test_output.xls
+test_output_xlsx.xlsx
+.DS_Store
+Thumbs.db

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classroom Pulse - Database Unit Tests</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #2563eb;
+      margin-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 16px;
+    }
+    .summary {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .summary.success {
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+    .summary.failure {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+    .test-case {
+      background-color: #ffffff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .test-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .test-name {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .test-desc {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .test-status {
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+    }
+    .test-status.pass {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    .test-status.fail {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Classroom Pulse - Database Engine Tests</h1>
+  
+  <div class="summary" id="test-summary">
+    Running unit test suites...
+  </div>
+
+  <div id="test-cases-container">
+    <!-- Test cases injected here -->
+  </div>
+
+  <script src="database.js"></script>
+  <script>
+    const TestSuite = {
+      tests: [],
+      passed: 0,
+      failed: 0,
+
+      addTest(name, description, runFn) {
+        this.tests.push({ name, description, runFn });
+      },
+
+      assert(condition, message) {
+        if (!condition) {
+          throw new Error(message || 'Assertion failed');
+        }
+      },
+
+      async run() {
+        console.log('Starting Test Runner...');
+        
+        // Reset database before testing to get clean state
+        Database.reset();
+        
+        const container = document.getElementById('test-cases-container');
+        container.innerHTML = '';
+
+        for (const test of this.tests) {
+          const card = document.createElement('div');
+          card.className = 'test-case';
+          card.innerHTML = `
+            <div class="test-info">
+              <span class="test-name">${test.name}</span>
+              <span class="test-desc">${test.description}</span>
+            </div>
+            <span class="test-status" id="status-${test.name.replace(/\s+/g, '-')}">Running</span>
+          `;
+          container.appendChild(card);
+
+          const statusBadge = document.getElementById(`status-${test.name.replace(/\s+/g, '-')}`);
+
+          try {
+            await test.runFn();
+            statusBadge.className = 'test-status pass';
+            statusBadge.textContent = 'PASS';
+            this.passed++;
+          } catch (err) {
+            statusBadge.className = 'test-status fail';
+            statusBadge.textContent = 'FAIL';
+            this.failed++;
+            console.error(`Test [${test.name}] failed:`, err);
+            
+            const errorDetails = document.createElement('div');
+            errorDetails.style.color = '#ef4444';
+            errorDetails.style.fontSize = '11px';
+            errorDetails.style.marginTop = '4px';
+            errorDetails.style.fontFamily = 'monospace';
+            errorDetails.textContent = `Error: ${err.message}`;
+            card.querySelector('.test-info').appendChild(errorDetails);
+          }
+        }
+
+        const summary = document.getElementById('test-summary');
+        if (this.failed === 0) {
+          summary.className = 'summary success';
+          summary.textContent = `SUCCESS: All ${this.passed} tests passed. Offline-first database core is fully functional!`;
+        } else {
+          summary.className = 'summary failure';
+          summary.textContent = `FAILURE: ${this.failed} tests failed. ${this.passed} passed. Check console/logs for details.`;
+        }
+      }
+    };
+
+    // 1. Seed Check
+    TestSuite.addTest('Database Seed Validation', 'Verify that default seed database contains students, settings, and users', () => {
+      const students = Database.getStudents();
+      TestSuite.assert(students.length === 32, `Expected 32 students in seed, found ${students.length}`);
+      
+      const linked = students.filter(s => s.rfid_uid).length;
+      TestSuite.assert(linked === 28, `Expected 28 active RFIDs in seed, found ${linked}`);
+      
+      const settings = Database.getSettings();
+      TestSuite.assert(settings.lateThresholdMinutes === 15, 'Late threshold should be 15 mins by default');
+      
+      const users = Database.getUsers();
+      TestSuite.assert(users.length === 2, `Expected 2 users in seed, found ${users.length}`);
+      TestSuite.assert(users.some(u => u.username === 'admin'), 'Advisor user "admin" should be present');
+      TestSuite.assert(users.some(u => u.username === 'principal'), 'Principal user "principal" should be present');
+    });
+
+    // 2. Student CRUD
+    TestSuite.addTest('Student Profile CRUD', 'Verify creating, updating, retrieving and deleting student records', () => {
+      // Create student
+      const newStudent = Database.saveStudent({
+        student_number: '2024-TEST',
+        full_name: 'Test Student',
+        grade_section: 'Grade 3 - Narra',
+        guardian_name: 'Test Parent',
+        contact_number: '+63 999 123 4567',
+        relationship: 'Mother',
+        photo_path: 'assets/photos/student_mateo.png'
+      });
+      
+      TestSuite.assert(newStudent.id !== undefined, 'Student ID should be automatically assigned');
+      
+      // Retrieve
+      let fetched = Database.getStudentById(newStudent.id);
+      TestSuite.assert(fetched.full_name === 'Test Student', 'Fetched name should match');
+      
+      // Update
+      fetched.full_name = 'Test Student Updated';
+      Database.saveStudent(fetched);
+      fetched = Database.getStudentById(newStudent.id);
+      TestSuite.assert(fetched.full_name === 'Test Student Updated', 'Updated name should match');
+      
+      // Add a second student under the same section to verify no overwrites/ID collisions
+      const secondStudent = Database.saveStudent({
+        student_number: '2024-TEST2',
+        full_name: 'Second Test Student',
+        grade_section: 'Grade 3 - Narra',
+        guardian_name: 'Second Parent',
+        contact_number: '+63 999 123 4568',
+        relationship: 'Father',
+        photo_path: 'assets/photos/student_mateo.png'
+      });
+
+      TestSuite.assert(secondStudent.id !== newStudent.id, 'Second student should have a unique ID');
+      let fetchedSecond = Database.getStudentById(secondStudent.id);
+      TestSuite.assert(fetchedSecond !== undefined, 'Second student should be retrievable');
+      TestSuite.assert(fetchedSecond.full_name === 'Second Test Student', 'Second student name should match');
+      
+      // Verify both exist at the same time and name didn't overwrite
+      let fetchedFirst = Database.getStudentById(newStudent.id);
+      TestSuite.assert(fetchedFirst !== undefined, 'First student should still exist after adding second student');
+      TestSuite.assert(fetchedFirst.full_name === 'Test Student Updated', 'First student name should not be overwritten');
+
+      // Delete both
+      Database.deleteStudent(newStudent.id);
+      Database.deleteStudent(secondStudent.id);
+      
+      fetched = Database.getStudentById(newStudent.id);
+      TestSuite.assert(fetched === undefined, 'First student should be deleted');
+      fetchedSecond = Database.getStudentById(secondStudent.id);
+      TestSuite.assert(fetchedSecond === undefined, 'Second student should be deleted');
+    });
+
+    // 3. RFID Link validations
+    TestSuite.addTest('RFID Linking Validations', 'Verify linking RFID cards and preventing duplicate linking across students', () => {
+      const students = Database.getStudents();
+      const s1 = students[0];
+      const s2 = students[1];
+      
+      // Link s2 to a new card
+      Database.registerRFID(s2.id, 'FFF12345EE');
+      let updatedS2 = Database.getStudentById(s2.id);
+      TestSuite.assert(updatedS2.rfid_uid === 'FFF12345EE', 'RFID UID should be linked to s2');
+
+      // Attempt to link s1 to the SAME card (should throw error)
+      let threw = false;
+      try {
+        Database.registerRFID(s1.id, 'FFF12345EE');
+      } catch (err) {
+        threw = true;
+        TestSuite.assert(err.message.includes('already linked'), `Incorrect error message: ${err.message}`);
+      }
+      TestSuite.assert(threw, 'Should throw exception on duplicate RFID registration');
+    });
+
+    // 4. Attendance Statuses
+    TestSuite.addTest('Attendance Statuses', 'Verify saving present and absent attendance records', () => {
+      const students = Database.getStudents();
+      const student = students[0];
+      const dateStr = '2024-05-15';
+      
+      // Test Present Checkin
+      Database.saveAttendanceRecord({
+        student_id: student.id,
+        date: dateStr,
+        time_in: '07:35 AM',
+        status: 'PRESENT',
+        method: 'RFID Scan'
+      });
+      
+      let logs = Database.getAttendanceByDate(dateStr);
+      let log = logs.find(l => l.student_id === student.id);
+      TestSuite.assert(log !== undefined, 'Check-in log should be recorded');
+      TestSuite.assert(log.status === 'PRESENT', `Expected PRESENT status, got: ${log.status}`);
+      
+      // Test Absent Checkin
+      Database.saveAttendanceRecord({
+        student_id: student.id,
+        date: dateStr,
+        time_in: '--:-- --',
+        status: 'ABSENT',
+        method: 'No Entry'
+      });
+      
+      logs = Database.getAttendanceByDate(dateStr);
+      log = logs.find(l => l.student_id === student.id);
+      TestSuite.assert(log.status === 'ABSENT', `Expected ABSENT status, got: ${log.status}`);
+    });
+
+    // 5. Offline Sync queueing
+    TestSuite.addTest('Offline Sync Queueing', 'Verify that attendance logs are queued offline first and auto-synced when online', async () => {
+      const students = Database.getStudents();
+      const s1 = students[2];
+      const s2 = students[3];
+      const dateStr = '2024-05-16';
+      
+      // Clean up today's logs for these students
+      localStorage.removeItem(DB_KEYS.ATTENDANCE);
+      Database.init();
+      
+      // Record offline check-ins (synced: false)
+      Database.saveAttendanceRecord({
+        student_id: s1.id,
+        date: dateStr,
+        time_in: '07:30 AM',
+        status: 'PRESENT',
+        method: 'RFID Scan',
+        synced: false // explicit offline check-in
+      });
+      
+      Database.saveAttendanceRecord({
+        student_id: s2.id,
+        date: dateStr,
+        time_in: '07:32 AM',
+        status: 'PRESENT',
+        method: 'RFID Scan',
+        synced: false
+      });
+      
+      // Check unsynced count
+      let unsynced = Database.getUnsyncedCount();
+      TestSuite.assert(unsynced === 2, `Expected 2 unsynced records, found ${unsynced}`);
+      
+      // Trigger background sync (simulates internet recovery)
+      const syncResult = await Database.syncPendingRecords(true);
+      TestSuite.assert(syncResult.success === true, 'Sync process should succeed');
+      TestSuite.assert(syncResult.count === 2, `Expected 2 records synced, got ${syncResult.count}`);
+      
+      // Verify queue is now empty
+      unsynced = Database.getUnsyncedCount();
+      TestSuite.assert(unsynced === 0, `Expected 0 unsynced records after sync, found ${unsynced}`);
+    });
+
+    // 6. User Management & Password Reset Flow
+    TestSuite.addTest('User Management & Password Reset', 'Verify adding teacher accounts and forcing password reset on first login', () => {
+      // 1. Add new teacher
+      const username = 'test_teacher';
+      const tempPassword = 'temp-password-123';
+      const teacher = Database.saveUser({
+        username: username,
+        password: tempPassword,
+        display_name: 'Test Teacher',
+        role: 'Grade 4 Advisor',
+        section: 'Grade 4 - Narra',
+        needs_password_reset: true,
+        is_principal: false
+      });
+      
+      // Verify user added and defaults are set
+      let users = Database.getUsers();
+      let found = users.find(u => u.username === username);
+      TestSuite.assert(found !== undefined, 'Teacher account should be found in database');
+      TestSuite.assert(found.needs_password_reset === true, 'New teacher account should require password reset');
+      
+      // 2. Perform password reset
+      const newPassword = 'new-secure-password';
+      const resetResult = Database.changePassword(username, newPassword);
+      TestSuite.assert(resetResult === true, 'Password reset call should return true');
+      
+      // 3. Verify flag is false and password matches new one
+      users = Database.getUsers();
+      found = users.find(u => u.username === username);
+      TestSuite.assert(found.password === newPassword, 'Password should match new reset password');
+      TestSuite.assert(found.needs_password_reset === false, 'Password reset requirement should now be false');
+      
+      // 4. Delete teacher
+      Database.deleteUser(username);
+      users = Database.getUsers();
+      found = users.find(u => u.username === username);
+      TestSuite.assert(found === undefined, 'Teacher account should be deleted');
+    });
+    
+    TestSuite.addTest('Student Soft-Archiving & Restoring', 'Verify soft-archiving, restoring, and permanent deletion of students', () => {
+      // 1. Seed a student
+      const studentId = '2024-test-student';
+      const student = Database.saveStudent({
+        id: studentId,
+        student_number: '2024-TEST',
+        full_name: 'Test Archive Student',
+        grade_section: 'Grade 3 - Narra',
+        guardian_name: 'Parent',
+        contact_number: '+63 900 000 0000',
+        relationship: 'Mother',
+        photo_path: 'assets/photos/student_mateo.png'
+      });
+
+      // Verify active students contains student
+      let activeStudents = Database.getStudents(false);
+      let found = activeStudents.find(s => s.id === studentId);
+      TestSuite.assert(found !== undefined, 'New student should be active');
+
+      // 2. Archive student
+      Database.archiveStudent(studentId);
+
+      // Verify active students DOES NOT contain student
+      activeStudents = Database.getStudents(false);
+      found = activeStudents.find(s => s.id === studentId);
+      TestSuite.assert(found === undefined, 'Archived student should NOT be in active list');
+
+      // Verify all students (including archived) DOES contain student
+      let allStudents = Database.getStudents(true);
+      found = allStudents.find(s => s.id === studentId);
+      TestSuite.assert(found !== undefined, 'Archived student should be in total list');
+      TestSuite.assert(found.is_archived === true, 'Student is_archived flag should be true');
+
+      // 3. Restore student
+      Database.restoreStudent(studentId);
+
+      // Verify active students contains student again
+      activeStudents = Database.getStudents(false);
+      found = activeStudents.find(s => s.id === studentId);
+      TestSuite.assert(found !== undefined, 'Restored student should be in active list');
+      TestSuite.assert(found.is_archived === false, 'Student is_archived flag should be false');
+
+      // 4. Permanent delete student
+      Database.deleteStudent(studentId);
+
+      // Verify student is completely gone
+      allStudents = Database.getStudents(true);
+      found = allStudents.find(s => s.id === studentId);
+      TestSuite.assert(found === undefined, 'Permanently deleted student should be completely gone from database');
+    });
+
+    TestSuite.addTest('Morning vs. Afternoon Session Separability', 'Verify that AM and PM attendance sessions create separate records', () => {
+      const students = Database.getStudents();
+      const student = students[0];
+      const dateStr = '2024-05-20';
+      
+      // Clean up records for this date
+      let allLogs = Database.getAttendanceAll().filter(l => l.date !== dateStr);
+      localStorage.setItem('malaiba_attendance', JSON.stringify(allLogs));
+      
+      // Save AM
+      Database.saveAttendanceRecord({
+        student_id: student.id,
+        date: dateStr,
+        session: 'AM',
+        time_in: '07:35 AM',
+        status: 'PRESENT',
+        method: 'RFID Scan'
+      });
+      
+      // Save PM
+      Database.saveAttendanceRecord({
+        student_id: student.id,
+        date: dateStr,
+        session: 'PM',
+        time_in: '01:20 PM',
+        status: 'PRESENT',
+        method: 'RFID Scan'
+      });
+      
+      const logs = Database.getAttendanceByDate(dateStr);
+      TestSuite.assert(logs.length === 2, `Expected 2 records (AM & PM), found ${logs.length}`);
+      
+      const amLog = logs.find(l => l.session === 'AM');
+      const pmLog = logs.find(l => l.session === 'PM');
+      TestSuite.assert(amLog !== undefined && pmLog !== undefined, 'Both AM and PM logs should be present');
+      TestSuite.assert(amLog.id !== pmLog.id, 'AM and PM logs must have unique IDs');
+    });
+
+    TestSuite.addTest('Morning/Afternoon Settings Verification', 'Verify AM/PM configurations are saved and loaded correctly', () => {
+      const settings = Database.getSettings();
+      TestSuite.assert(settings.amStartTime === '07:30', 'Default AM Start should be 07:30');
+      TestSuite.assert(settings.pmStartTime === '13:00', 'Default PM Start should be 13:00');
+      
+      // Modify and save
+      Database.saveSettings({
+        amStartTime: '08:00',
+        pmStartTime: '14:00'
+      });
+      
+      const updated = Database.getSettings();
+      TestSuite.assert(updated.amStartTime === '08:00', 'AM Start should be updated to 08:00');
+      TestSuite.assert(updated.pmStartTime === '14:00', 'PM Start should be updated to 14:00');
+    });
+
+    TestSuite.addTest('Section List CRUD', 'Verify saving, retrieving, and deleting classroom sections in the database with cascading deletes', async () => {
+      let sections = Database.getSections();
+      TestSuite.assert(sections.length === 3, `Expected 3 seeded sections, got ${sections.length}`);
+      TestSuite.assert(sections.includes('Grade 3 - Narra'), 'Should include Grade 3 - Narra');
+
+      const added = Database.saveSection('Grade 4 - Acacia');
+      TestSuite.assert(added === true, 'Saving a new section should return true');
+      
+      sections = Database.getSections();
+      TestSuite.assert(sections.length === 4, 'Should now have 4 sections');
+      TestSuite.assert(sections.includes('Grade 4 - Acacia'), 'Should include Grade 4 - Acacia');
+
+      // Create a student in Grade 4 - Acacia
+      const studentId = 'student-cascade-test';
+      Database.saveStudent({
+        id: studentId,
+        student_number: '2024-CASC',
+        full_name: 'Cascade Student',
+        grade_section: 'Grade 4 - Acacia',
+        guardian_name: 'Parent',
+        contact_number: '+63 900 000 0000',
+        relationship: 'Mother',
+        photo_path: 'assets/photos/student_mateo.png'
+      });
+
+      // Save an attendance record for the student
+      Database.saveAttendanceRecord({
+        student_id: studentId,
+        date: '2024-05-25',
+        session: 'AM',
+        time_in: '07:30 AM',
+        status: 'PRESENT',
+        method: 'RFID Scan'
+      });
+
+      // Create a teacher in Grade 4 - Acacia
+      const teacherUsername = 'teacher_cascade_test';
+      Database.saveUser({
+        username: teacherUsername,
+        password: 'password',
+        display_name: 'Cascade Teacher',
+        role: 'Grade 4 Adviser',
+        section: 'Grade 4 - Acacia',
+        needs_password_reset: false,
+        is_principal: false
+      });
+
+      // Verify they exist
+      TestSuite.assert(Database.getStudentById(studentId) !== undefined, 'Student should exist before section delete');
+      TestSuite.assert(Database.getUsers().some(u => u.username === teacherUsername), 'Teacher should exist before section delete');
+      TestSuite.assert(Database.getAttendanceAll().some(a => a.student_id === studentId), 'Attendance should exist before section delete');
+
+      const duplicateAdded = Database.saveSection('Grade 4 - Acacia');
+      TestSuite.assert(duplicateAdded === false, 'Saving a duplicate section should return false');
+
+      const deleted = Database.deleteSection('Grade 4 - Acacia');
+      TestSuite.assert(deleted === true, 'Deleting a section should return true');
+      
+      sections = Database.getSections();
+      TestSuite.assert(sections.length === 3, 'Should be back to 3 sections');
+      TestSuite.assert(!sections.includes('Grade 4 - Acacia'), 'Should no longer include Grade 4 - Acacia');
+
+      // Verify cascading deletes
+      TestSuite.assert(Database.getStudentById(studentId) === undefined, 'Student should be permanently deleted');
+      TestSuite.assert(!Database.getUsers().some(u => u.username === teacherUsername), 'Teacher should be permanently deleted');
+      TestSuite.assert(!Database.getAttendanceAll().some(a => a.student_id === studentId), 'Attendance records should be permanently deleted');
+    });
+
+    TestSuite.addTest('Unique Advisor Section Validation', 'Verify logic to check if a section is already assigned to another teacher', () => {
+      const users = Database.getUsers();
+      
+      const checkSectionUnique = (username, section) => {
+        const cleanSection = section ? section.trim() : '';
+        if (!cleanSection) return true;
+        const duplicate = users.find(u => !u.is_principal && u.section === cleanSection && u.username !== username.toLowerCase());
+        return !duplicate;
+      };
+
+      const isUniqueNew = checkSectionUnique('new_teacher', 'Grade 3 - Narra');
+      TestSuite.assert(isUniqueNew === false, 'Grade 3 - Narra should NOT be unique for new_teacher since it is assigned to admin');
+
+      const isUniqueNewMolave = checkSectionUnique('new_teacher', 'Grade 3 - Molave');
+      TestSuite.assert(isUniqueNewMolave === true, 'Grade 3 - Molave should be unique for new_teacher since no one is assigned to it');
+
+      const isUniqueSelf = checkSectionUnique('admin', 'Grade 3 - Narra');
+      TestSuite.assert(isUniqueSelf === true, 'admin should be allowed to keep Grade 3 - Narra');
+    });
+
+    // Run Suite
+    TestSuite.run();
+  </script>
+</body>
+</html>
