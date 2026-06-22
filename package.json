@@ -1,10 +1,19 @@
 {
+  "name": "malaiba-attendance-system",
+  "version": "1.0.0",
+  "main": "main.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node run-tests.js"
+    "test": "node run-tests.js",
+    "app:start": "npx electron .",
+    "app:package": "electron-packager . ClassroomPulse --platform=win32 --arch=x64 --out=dist --overwrite --icon=assets/icon.ico --ignore=\"(dist|\\.git|\\.vscode|run-tests\\.js|test\\.html|capture-screens\\.js|check-db-students\\.js|node_modules/puppeteer-core)\""
   },
   "dependencies": {
     "puppeteer-core": "^25.1.0",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^42.4.1",
+    "electron-packager": "^17.1.2"
   }
 }
