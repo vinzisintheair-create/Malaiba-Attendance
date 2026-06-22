@@ -1391,59 +1391,7 @@
     </div>
   </div>
 
-  <!-- ==================== DEMONSTRATION & CONTROL PANEL ==================== -->
 
-  <div class="sim-overlay-panel" id="sim-panel">
-    <div class="sim-overlay-header">
-      <span>Simulation & Demo Bar</span>
-      <button class="btn-toggle-sim"
-        onclick="const panel = document.getElementById('sim-panel-content'); panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';"
-        title="Collapse Console">
-        <span class="material-symbols-outlined" style="font-size:16px;">unfold_less</span>
-      </button>
-    </div>
-    <div class="sim-overlay-body" id="sim-panel-content" style="display: flex; flex-direction: column;">
-
-      <!-- Network Connectivity simulator -->
-      <div class="sim-control-group">
-        <div class="sim-label">Connectivity Control</div>
-        <div class="sim-toggle-row">
-          <span>Internet Network Status</span>
-          <label class="switch-btn-toggle">
-            <input type="checkbox" id="sim-network-toggle" checked onchange="App.setMockOffline(!this.checked);">
-            <span class="slider-switch-bg"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Card Scanner simulator -->
-      <div class="sim-control-group">
-        <div class="sim-label">Simulate RFID Tap</div>
-        <select id="sim-student-select" class="sim-select-student">
-          <option value="E2801108C5">Elena Rodriguez (Linked Card)</option>
-          <option value="A4F92210D2">Sofia Gomez (Linked Card)</option>
-          <option value="B7C34491F8">Julian Cruz (Linked Card)</option>
-          <option value="MATEO_TAP">Mateo Santos (Unlinked student)</option>
-          <option value="99F12388D2">Unregistered Card (UID: 99F12388D2)</option>
-        </select>
-
-        <button class="btn-sim-tap" onclick="
-          const sel = document.getElementById('sim-student-select').value;
-          if (sel === 'MATEO_TAP') {
-            App.handleRFIDScan('E2801108C5'); // Mateo's target card
-          } else {
-            App.handleRFIDScan(sel);
-          }
-        ">Simulate RFID Tap</button>
-      </div>
-
-      <div
-        style="font-size: 9px; color: #64748b; font-weight: 500; text-align: center; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
-        Note: The global listener detects rapid key input from USB RFID scanners matching a 10-digit UID + Enter
-        sequence.
-      </div>
-    </div>
-  </div>
 
   <!-- ==================== APPLICATION SCRIPTS ==================== -->
   <!-- Firebase App & Firestore Compat SDKs -->
