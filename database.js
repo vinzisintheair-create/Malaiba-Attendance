@@ -133,7 +133,7 @@ const DEFAULT_USERS = [
   {
     username: 'admin',
     password: 'password', // in a real app, hash it
-    display_name: 'Mrs. Elena Santos',
+    display_name: 'Admin',
     role: 'Grade 3 Adviser',
     section: 'Grade 3 - Narra',
     photo_path: 'assets/photos/teacher_santos.png',
@@ -314,8 +314,12 @@ const Database = {
         const parsedUsers = JSON.parse(storedUsersStr);
         let updated = false;
         DEFAULT_USERS.forEach(defaultUser => {
-          if (!parsedUsers.some(u => u.username === defaultUser.username)) {
+          const existing = parsedUsers.find(u => u.username === defaultUser.username);
+          if (!existing) {
             parsedUsers.push(defaultUser);
+            updated = true;
+          } else if (defaultUser.username === 'admin' && existing.display_name === 'Mrs. Elena Santos') {
+            existing.display_name = 'Admin';
             updated = true;
           }
         });
@@ -324,6 +328,20 @@ const Database = {
         }
       } catch (e) {
         localStorage.setItem(DB_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
+      }
+    }
+    
+    // Migrate active user if currently Elena Santos
+    const activeUserStr = localStorage.getItem(DB_KEYS.ACTIVE_USER);
+    if (activeUserStr) {
+      try {
+        const activeUser = JSON.parse(activeUserStr);
+        if (activeUser.username === 'admin' && activeUser.display_name === 'Mrs. Elena Santos') {
+          activeUser.display_name = 'Admin';
+          localStorage.setItem(DB_KEYS.ACTIVE_USER, JSON.stringify(activeUser));
+        }
+      } catch (e) {
+        console.warn("Active user migration failed:", e);
       }
     }
     
@@ -432,6 +450,17 @@ const Database = {
         });
         await batch.commit();
         console.log("Uploaded local users to Firestore.");
+      } else {
+        // Ensure cloud admin name is migrated
+        try {
+          const adminDoc = await this.fbDb.collection('users').doc('admin').get();
+          if (adminDoc.exists && adminDoc.data().display_name === 'Mrs. Elena Santos') {
+            await this.fbDb.collection('users').doc('admin').update({ display_name: 'Admin' });
+            console.log("Migrated Firestore admin name to 'Admin'.");
+          }
+        } catch (err) {
+          console.warn("Failed to migrate Firestore admin name:", err);
+        }
       }
 
       const sectionsSnapshot = await this.fbDb.collection('sections').limit(1).get();
