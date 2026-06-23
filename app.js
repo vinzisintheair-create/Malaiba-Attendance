@@ -1022,7 +1022,176 @@ const App = {
       document.getElementById('fb-app-id').value = '';
     }
     
+    const calendarCard = document.getElementById('settings-calendar-card');
+    if (calendarCard) {
+      calendarCard.style.display = isPrincipal ? 'block' : 'none';
+      if (isPrincipal) {
+        const monthSelect = document.getElementById('calendar-month-select');
+        const yearSelect = document.getElementById('calendar-year-select');
+        const now = new Date();
+        if (monthSelect && !monthSelect.value) {
+          monthSelect.value = now.getMonth();
+        }
+        if (yearSelect && !yearSelect.value) {
+          yearSelect.value = now.getFullYear();
+        }
+        this.renderCalendarConfig();
+      }
+    }
+
+    const principalProfileCard = document.getElementById('settings-principal-profile-card');
+    if (principalProfileCard) {
+      principalProfileCard.style.display = isPrincipal ? 'block' : 'none';
+      if (isPrincipal) {
+        document.getElementById('settings-principal-name').value = activeUser.display_name;
+      }
+    }
+
     this.renderSectionsList();
+  },
+
+  // Calendar Configuration Helpers
+  getDefaultClassDays(year, month) {
+    const days = [];
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateObj = new Date(year, month, d);
+      const dw = dateObj.getDay();
+      if (dw !== 0 && dw !== 6) {
+        days.push(d);
+      }
+    }
+    return days;
+  },
+
+  renderCalendarConfig() {
+    const monthSelect = document.getElementById('calendar-month-select');
+    const yearSelect = document.getElementById('calendar-year-select');
+    if (!monthSelect || !yearSelect) return;
+
+    const month = parseInt(monthSelect.value);
+    const year = parseInt(yearSelect.value);
+    const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+
+    const settings = Database.getSettings();
+    if (!settings.classDays) {
+      settings.classDays = {};
+    }
+    
+    if (!settings.classDays[monthKey]) {
+      this.currentCalendarDays = this.getDefaultClassDays(year, month);
+    } else {
+      this.currentCalendarDays = [...settings.classDays[monthKey]];
+    }
+
+    const grid = document.getElementById('calendar-days-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+      const emptySlot = document.createElement('div');
+      emptySlot.style.aspectRatio = '1';
+      emptySlot.style.visibility = 'hidden';
+      grid.appendChild(emptySlot);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateObj = new Date(year, month, d);
+      const dw = dateObj.getDay();
+      const isWeekend = dw === 0 || dw === 6;
+
+      const cell = document.createElement('div');
+      cell.style.aspectRatio = '1';
+      
+      if (isWeekend) {
+        cell.className = 'calendar-cell weekend';
+        cell.innerHTML = `
+          <span style="font-size: 13px; font-weight: 700;">${d}</span>
+          <span style="font-size: 9px; font-weight: 500; text-transform: uppercase; margin-top: 2px; color: var(--text-muted);">WE</span>
+        `;
+      } else {
+        const isActive = this.currentCalendarDays.includes(d);
+        cell.className = `calendar-cell weekday ${isActive ? 'active' : 'inactive'}`;
+        cell.id = `cal-day-${d}`;
+        cell.onclick = () => App.toggleCalendarDay(d);
+        cell.innerHTML = `
+          <span style="font-size: 13px; font-weight: 700;">${d}</span>
+          <span class="day-status-label" style="font-size: 9px; font-weight: 600; text-transform: uppercase; margin-top: 2px;">
+            ${isActive ? 'Class' : 'No Class'}
+          </span>
+        `;
+      }
+      grid.appendChild(cell);
+    }
+  },
+
+  toggleCalendarDay(day) {
+    if (!this.currentCalendarDays) return;
+    const index = this.currentCalendarDays.indexOf(day);
+    if (index !== -1) {
+      this.currentCalendarDays.splice(index, 1);
+    } else {
+      this.currentCalendarDays.push(day);
+    }
+    
+    const cell = document.getElementById(`cal-day-${day}`);
+    if (cell) {
+      const isActive = this.currentCalendarDays.includes(day);
+      cell.className = `calendar-cell weekday ${isActive ? 'active' : 'inactive'}`;
+      const label = cell.querySelector('.day-status-label');
+      if (label) {
+        label.textContent = isActive ? 'Class' : 'No Class';
+      }
+    }
+  },
+
+  saveCalendarConfig() {
+    const monthSelect = document.getElementById('calendar-month-select');
+    const yearSelect = document.getElementById('calendar-year-select');
+    if (!monthSelect || !yearSelect || !this.currentCalendarDays) return;
+
+    const month = parseInt(monthSelect.value);
+    const year = parseInt(yearSelect.value);
+    const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+
+    const settings = Database.getSettings();
+    if (!settings.classDays) {
+      settings.classDays = {};
+    }
+    
+    this.currentCalendarDays.sort((a, b) => a - b);
+    settings.classDays[monthKey] = this.currentCalendarDays;
+
+    Database.saveSettings(settings);
+    this.showToast('Class calendar saved and updated successfully!');
+    Sounds.playSuccess();
+    
+    if (this.isOnline && !this.isMockOffline) {
+      this.triggerAutoSync();
+    }
+  },
+
+  savePrincipalProfileName(newName) {
+    const activeUser = Database.getActiveUser();
+    if (!activeUser || !activeUser.is_principal) return;
+
+    activeUser.display_name = newName.trim();
+    
+    Database.saveUser(activeUser);
+    
+    localStorage.setItem('malaiba_active_user', JSON.stringify(activeUser));
+    
+    this.updateProfileUI(activeUser);
+    
+    this.showToast('Profile name updated successfully!');
+    Sounds.playSuccess();
+    
+    if (this.isOnline && !this.isMockOffline) {
+      this.triggerAutoSync();
+    }
   },
 
   // Active Session Sub-renderers
@@ -2352,6 +2521,20 @@ const App = {
             }
           }
           
+          const settings = Database.getSettings();
+          const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+          const selectedDays = (settings.classDays && settings.classDays[monthKey]) || App.getDefaultClassDays(year, month);
+
+          // Filter to only include selected class days
+          Object.keys(dateToCol).forEach(d => {
+            const dayNum = parseInt(d);
+            if (!selectedDays.includes(dayNum)) {
+              const col = dateToCol[dayNum];
+              delete dateToCol[dayNum];
+              delete colToDate[col];
+            }
+          });
+          
           // 3. Row bounds
           const isJune = (sheetName === 'JUNE');
           const maleStartRow = 7;
@@ -2765,6 +2948,20 @@ const App = {
             colToDate[col] = d;
           }
         }
+        
+        const settings = Database.getSettings();
+        const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+        const selectedDays = (settings.classDays && settings.classDays[monthKey]) || App.getDefaultClassDays(year, month);
+
+        // Filter to only include selected class days
+        Object.keys(dateToCol).forEach(d => {
+          const dayNum = parseInt(d);
+          if (!selectedDays.includes(dayNum)) {
+            const col = dateToCol[dayNum];
+            delete dateToCol[dayNum];
+            delete colToDate[col];
+          }
+        });
         
         // List of active columns and their date values
         const activeDays = dayCols.filter(col => colToDate[col] !== undefined).map(col => ({

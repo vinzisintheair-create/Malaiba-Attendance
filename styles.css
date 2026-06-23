@@ -2353,14 +2353,15 @@ a {
 .print-paper-sheet {
   background-color: #ffffff;
   color: #0f172a;
-  width: 100%;
-  max-width: 1050px;
+  width: fit-content;
+  min-width: 1050px;
   min-height: 700px;
   padding: 40px;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
+  margin: 0 auto;
 }
 
 .report-header-title {
@@ -2589,5 +2590,73 @@ a {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+}
+
+/* Calendar Configuration Styles */
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+
+.calendar-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.calendar-cell.weekend {
+  background-color: var(--surface-container-low);
+  border: 1px dashed var(--outline-variant);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.calendar-cell.weekday {
+  border: 1px solid var(--outline-variant);
+  cursor: pointer;
+  background-color: var(--surface);
+}
+
+.calendar-cell.weekday:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.calendar-cell.weekday.active {
+  background-color: var(--primary-container);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.calendar-cell.weekday.active span {
+  color: var(--primary);
+}
+
+.calendar-cell.weekday.active .day-status-label {
+  color: var(--primary);
+  background-color: hsla(var(--primary-hue), var(--primary-sat), var(--primary-light), 0.15);
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+}
+
+.calendar-cell.weekday.inactive {
+  background-color: var(--background);
+  border-color: var(--outline-variant);
+  color: var(--text-muted);
+}
+
+.calendar-cell.weekday.inactive .day-status-label {
+  color: var(--status-absent);
+  background-color: var(--status-absent-bg);
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
 }
 

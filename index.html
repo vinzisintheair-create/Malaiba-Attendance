@@ -659,6 +659,32 @@
                 </form>
               </div>
 
+              <!-- Card: Principal Profile Settings -->
+              <div class="settings-section-card" id="settings-principal-profile-card" style="margin-top: 24px; display: none;">
+                <div class="settings-section-header">
+                  <div class="settings-section-icon-wrapper"
+                    style="background-color: var(--primary-container); color: var(--primary);">
+                    <span class="material-symbols-outlined">person</span>
+                  </div>
+                  <h3>Principal Profile</h3>
+                </div>
+
+                <form id="settings-profile-form" onsubmit="event.preventDefault(); App.savePrincipalProfileName(
+                  document.getElementById('settings-principal-name').value
+                );">
+                  <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="settings-principal-name">Principal Display Name</label>
+                    <input type="text" id="settings-principal-name" class="form-input" placeholder="e.g. Dr. Albert Flores" required>
+                  </div>
+
+                  <div style="display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn-primary" style="width: auto; padding: 0 24px; height: 40px;">
+                      Save Profile Name
+                    </button>
+                  </div>
+                </form>
+              </div>
+
               <!-- Card: Manage School Sections -->
               <div class="settings-section-card" id="settings-sections-card" style="margin-top: 24px; display: none;">
                 <div class="settings-section-header">
@@ -703,6 +729,69 @@
                       <!-- JS generated rows -->
                     </tbody>
                   </table>
+                </div>
+              </div>
+
+              <!-- Card: Manage Class Calendar -->
+              <div class="settings-section-card" id="settings-calendar-card" style="margin-top: 24px; display: none;">
+                <div class="settings-section-header">
+                  <div class="settings-section-icon-wrapper"
+                    style="background-color: var(--primary-container); color: var(--primary);">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                  </div>
+                  <h3>Manage Class Calendar</h3>
+                </div>
+
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; font-weight: 500;">
+                  Configure the active days of classes for each month. Holidays or cancelled school days should be unchecked so they are excluded from attendance rate calculations and reports.
+                </p>
+
+                <!-- Month / Year Selector -->
+                <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+                  <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label for="calendar-month-select">Select Month</label>
+                    <select id="calendar-month-select" class="select-filter" style="width: 100%; height: 44px; margin-bottom: 0;" onchange="App.renderCalendarConfig();">
+                      <option value="0">January</option>
+                      <option value="1">February</option>
+                      <option value="2">March</option>
+                      <option value="3">April</option>
+                      <option value="4">May</option>
+                      <option value="5">June</option>
+                      <option value="6">July</option>
+                      <option value="7">August</option>
+                      <option value="8">September</option>
+                      <option value="9">October</option>
+                      <option value="10">November</option>
+                      <option value="11">December</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label for="calendar-year-select">Select Year</label>
+                    <select id="calendar-year-select" class="select-filter" style="width: 100%; height: 44px; margin-bottom: 0;" onchange="App.renderCalendarConfig();">
+                      <option value="2026">2026</option>
+                      <option value="2025">2025</option>
+                      <option value="2024">2024</option>
+                      <option value="2023">2023</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Calendar Grid Container -->
+                <div class="calendar-grid-wrapper" style="border: 1px solid var(--outline-variant); border-radius: var(--radius-md); padding: 16px; background-color: var(--surface-variant);">
+                  <!-- Days of Week Header -->
+                  <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 12px; border-bottom: 1px solid var(--outline-variant); padding-bottom: 8px;">
+                    <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+                  </div>
+                  <!-- Days Grid -->
+                  <div id="calendar-days-grid" class="calendar-days-grid">
+                    <!-- JS generated calendar cells -->
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                  <button type="button" class="btn-primary" onclick="App.saveCalendarConfig();" style="width: auto; padding: 0 24px; height: 40px;">
+                    Save Class Calendar
+                  </button>
                 </div>
               </div>
 
@@ -1383,7 +1472,7 @@
         </div>
       </div>
       <div class="modal-body" id="report-preview-body"
-        style="flex-grow: 1; overflow-y: auto; background-color: #f1f5f9; padding: 32px; display: flex; justify-content: center;">
+        style="flex-grow: 1; overflow: auto; background-color: #f1f5f9; padding: 32px;">
         <div class="print-paper-sheet" id="print-paper-sheet">
           <!-- Dynamic SF2-like report goes here -->
         </div>

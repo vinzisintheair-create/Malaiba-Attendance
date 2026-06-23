@@ -126,7 +126,8 @@ const DEFAULT_SETTINGS = {
   pmStartTime: '13:00',
   pmLateMin: '13:15',
   pmLateMax: '14:00',
-  pmDeadline: '15:00'
+  pmDeadline: '15:00',
+  classDays: {}
 };
 
 const DEFAULT_USERS = [
@@ -475,6 +476,14 @@ const Database = {
         await batch.commit();
         console.log("Uploaded local sections to Firestore.");
       }
+
+      const settingsDoc = await this.fbDb.collection('settings').doc('system').get();
+      if (!settingsDoc.exists) {
+        console.log("Firestore settings document does not exist. Uploading local settings...");
+        const settings = this.getSettings();
+        await this.fbDb.collection('settings').doc('system').set(settings);
+        console.log("Uploaded local settings to Firestore.");
+      }
     } catch (err) {
       console.warn("Failed to upload seed data to Firestore:", err);
     }
@@ -569,6 +578,37 @@ const Database = {
       }
     }, err => console.warn("Sections listener failed:", err));
     this.fbListeners.push(unsubSections);
+
+    // Listen for Settings
+    const unsubSettings = this.fbDb.collection('settings').doc('system').onSnapshot(doc => {
+      if (doc.exists) {
+        const settings = doc.data();
+        const oldSettingsStr = localStorage.getItem(DB_KEYS.SETTINGS);
+        const oldSettings = oldSettingsStr ? JSON.parse(oldSettingsStr) : null;
+        
+        const rulesChanged = oldSettings && (
+          oldSettings.amStartTime !== settings.amStartTime ||
+          oldSettings.amDeadline !== settings.amDeadline ||
+          oldSettings.pmStartTime !== settings.pmStartTime ||
+          oldSettings.pmDeadline !== settings.pmDeadline ||
+          oldSettings.serverSyncUrl !== settings.serverSyncUrl ||
+          oldSettings.mockServerMode !== settings.mockServerMode ||
+          JSON.stringify(oldSettings.classDays) !== JSON.stringify(settings.classDays)
+        );
+
+        localStorage.setItem(DB_KEYS.SETTINGS, JSON.stringify(settings));
+        
+        if (window.App) {
+          if (rulesChanged && typeof window.App.showToast === 'function') {
+            window.App.showToast("School attendance settings updated from cloud.");
+          }
+          if (typeof window.App.renderScreen === 'function' && window.App.currentScreen === 'settings') {
+            window.App.renderScreen('settings');
+          }
+        }
+      }
+    }, err => console.warn("Settings listener failed:", err));
+    this.fbListeners.push(unsubSettings);
   },
 
   async clearFirestoreCollection(collectionName) {
@@ -599,7 +639,8 @@ const Database = {
         this.clearFirestoreCollection('students'),
         this.clearFirestoreCollection('attendance'),
         this.clearFirestoreCollection('users'),
-        this.clearFirestoreCollection('sections')
+        this.clearFirestoreCollection('sections'),
+        this.clearFirestoreCollection('settings')
       ]).then(() => {
         this.init();
       });
@@ -933,6 +974,18 @@ const Database = {
     const current = this.getSettings();
     const updated = { ...current, ...settings };
     localStorage.setItem(DB_KEYS.SETTINGS, JSON.stringify(updated));
+
+    // Firestore sync
+    if (this.fbDb) {
+      this.fbDb.collection('settings').doc('system').set(updated, { merge: true })
+        .catch(err => {
+          console.warn("Firestore saveSettings failed:", err);
+          if (window.App && typeof window.App.showToast === 'function') {
+            window.App.showToast(`Cloud settings save failed: ${err.message || err}`);
+          }
+        });
+    }
+
     return updated;
   },
 
